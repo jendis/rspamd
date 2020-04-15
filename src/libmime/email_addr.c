@@ -156,7 +156,7 @@ static gboolean
 rspamd_email_address_parse_heuristic (const char *data, size_t len,
 		struct rspamd_email_address *addr)
 {
-	const gchar *p = data, *at = NULL, *end = data + len;
+	const gchar *p = data, *at = NULL, *dom = NULL, *end = data + len;
 	gboolean ret = FALSE;
 
 	memset (addr, 0, sizeof (*addr));
@@ -185,7 +185,11 @@ rspamd_email_address_parse_heuristic (const char *data, size_t len,
 		at = memchr (p, '@', len);
 
 		if (at != NULL && at + 1 < end) {
-			addr->domain = at + 1;
+			addr->domain = dom = at + 1;
+      while (dom =< end && !g_ascii_isspace (*dom)) {
+        dom++;
+      }
+
 			addr->domain_len = end - (at + 1);
 			addr->user = p;
 			addr->user_len = at - p;
