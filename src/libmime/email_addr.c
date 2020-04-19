@@ -59,29 +59,24 @@ rspamd_email_address_from_smtp (const gchar *str, guint len)
 
 	rspamd_smtp_addr_parse (str, len, &addr);
 
-	if (addr.flags & RSPAMD_EMAIL_ADDR_VALID) {
-		ret = g_malloc (sizeof (*ret));
-		memcpy (ret, &addr, sizeof (addr));
+	ret = g_malloc (sizeof (*ret));
+	memcpy (ret, &addr, sizeof (addr));
 
-		if ((ret->flags & RSPAMD_EMAIL_ADDR_QUOTED) && ret->addr[0] == '"') {
-			if (ret->flags & RSPAMD_EMAIL_ADDR_HAS_BACKSLASH) {
-				/* We also need to unquote user */
-				rspamd_email_address_unescape (ret);
-			}
-
-			/* We need to unquote addr */
-			nlen = ret->domain_len + ret->user_len + 2;
-			ret->addr = g_malloc (nlen + 1);
-			ret->addr_len = rspamd_snprintf ((char *)ret->addr, nlen, "%*s@%*s",
-					(gint)ret->user_len, ret->user,
-					(gint)ret->domain_len, ret->domain);
-			ret->flags |= RSPAMD_EMAIL_ADDR_ADDR_ALLOCATED;
+	if ((ret->flags & RSPAMD_EMAIL_ADDR_QUOTED) && ret->addr[0] == '"') {
+		if (ret->flags & RSPAMD_EMAIL_ADDR_HAS_BACKSLASH) {
+			/* We also need to unquote user */
+			rspamd_email_address_unescape (ret);
 		}
 
-		return ret;
+		/* We need to unquote addr */
+		nlen = ret->domain_len + ret->user_len + 2;
+		ret->addr = g_malloc (nlen + 1);
+		ret->addr_len = rspamd_snprintf ((char *)ret->addr, nlen, "%*s@%*s",
+				(gint)ret->user_len, ret->user,
+				(gint)ret->domain_len, ret->domain);
+		ret->flags |= RSPAMD_EMAIL_ADDR_ADDR_ALLOCATED;
 	}
-
-	return NULL;
+	return ret;
 }
 
 void
